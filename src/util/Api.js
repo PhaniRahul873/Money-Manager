@@ -1,4 +1,4 @@
-const ipAddress = '192.168.1.34'
+const ipAddress = '172.20.10.4'
 
 const getTransactionsList = async (
   startTime,
