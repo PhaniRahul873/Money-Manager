@@ -1,4 +1,6 @@
-const ipAddress = '172.20.10.4'
+const gauthamIPAddress = '192.168.29.171'; // Don't remove this. Please add yours.
+const ipAddress = gauthamIPAddress;
+
 
 const getTransactionsList = async (
   startTime,
@@ -28,7 +30,6 @@ const getTransactionAmountByCategory = async (
   endTime,
   transactionType
 ) => {
-  console.log('Entered here');
   return fetch(
     `http://${ipAddress}:3000/api/pieChart/getTransactionAmountByCategory?user=1&startTime=${startTime}&endTime=${endTime}&transactionType=${transactionType}`
   )

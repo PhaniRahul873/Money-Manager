@@ -15,15 +15,14 @@ import { AntDesign } from '@expo/vector-icons'
 import DateDisplay from '../util/DateDisplay'
 import { getTransactionAmountByCategory } from '../util/Api'
 import { getFormattedDate } from '../util/DateConversion'
-import randomColor from 'randomcolor';
+import randomColor from 'randomcolor'
 
 const PieChartStat = () => {
-  const widthAndHeight = 250;
-  const [sliceColor, setSliceColor] = useState([randomColor()]);
+  const widthAndHeight = 250
+  const [sliceColor, setSliceColor] = useState([randomColor()])
   const obj = new DateDisplay()
-  const [frequency, setFrequency] = useState(obj.get_weeks_data());
-  const [series, setSeries] = useState([100]);
-
+  const [frequency, setFrequency] = useState(obj.get_weeks_data())
+  const [series, setSeries] = useState([100])
 
   const [pieChartData, setPieChartData] = useState(null)
   const [startDate, setStartDate] = useState(null)
@@ -47,51 +46,49 @@ const PieChartStat = () => {
     fetchData()
   }, [startDate, endDate, transactionType])
 
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([])
 
-  const ModifyStartTimeEndTime = () => {
+  const [period, setPeriod] = useState(frequency.length - 1);
+
+  useEffect(() => {
     setStartDate(getFormattedDate(frequency[period].startDate));
     setEndDate(getFormattedDate(frequency[period].endDate));
+  }, [period,frequency]);
+
+  const ModifyStartTimeEndTime = () => {
+    setStartDate(getFormattedDate(frequency[period].startDate))
+    setEndDate(getFormattedDate(frequency[period].endDate))
   }
 
   const PerformWeekly = () => {
-    setFrequency(obj.get_weeks_data())
     setPeriod(0)
-    ModifyStartTimeEndTime()
+    setFrequency(obj.get_weeks_data())
   }
 
   const PerformMonthly = () => {
-    setFrequency(obj.get_months_data())
     setPeriod(0)
-    ModifyStartTimeEndTime()
+    setFrequency(obj.get_months_data())
   }
 
   const PerformYearly = () => {
-    setFrequency(obj.get_years_data())
     setPeriod(0)
-    ModifyStartTimeEndTime()
+    setFrequency(obj.get_years_data())
   }
 
-  const [period, setPeriod] = useState(frequency.length - 1)
-
   const moveLeft = () => {
-    setPeriod(period - 1 < 0 ? 0 : period - 1)
-    ModifyStartTimeEndTime()
+    setPeriod(period - 1 < 0 ? frequency.length - 1 : period - 1)
   }
 
   const moveRight = () => {
-    setPeriod(
-      period + 1 > frequency.length - 1 ? frequency.length - 1 : period + 1
-    )
-    ModifyStartTimeEndTime()
+    setPeriod(period + 1 > frequency.length - 1 ? 0 : period + 1);
   }
 
   useEffect(() => {
     if (pieChartData) {
       const categories = Object.keys(pieChartData)
-      let series = Object.values(pieChartData);
-      let sliceColor = [];
-      let data = [];
+      let series = Object.values(pieChartData)
+      let sliceColor = []
+      let data = []
       for (let i = 0; i < categories.length; i++) {
         sliceColor.push(randomColor());
         const obj = {
@@ -105,8 +102,8 @@ const PieChartStat = () => {
         }
         data.push(obj)
       }
-      setSliceColor(sliceColor.length > 0 ? sliceColor : [randomColor()]);
-      setSeries(series.length > 0 ? series : ["100"]);
+      setSliceColor(sliceColor.length > 0 ? sliceColor : ['#D3D3D3'])
+      setSeries(series.length > 0 ? series : ['1']);
       setData(data);
     }
   }, [pieChartData])
