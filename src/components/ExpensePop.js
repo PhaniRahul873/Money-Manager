@@ -25,10 +25,10 @@ const ExpensePop = ({setValid}) => {
         const newItem = {
         "user": "1",
         "amount": amount,
+        "category": spentOn,
+        "description":description
       }
       addIncome(newItem)
-      setModalVisible(false)
-      setValid(true)
     }else{
       const newItem = {
         "user": "1",
@@ -37,9 +37,9 @@ const ExpensePop = ({setValid}) => {
         "description": description,
       }
       addExpense(newItem)
-      setModalVisible(false)
-      setValid(true)
     }
+    setModalVisible(false)
+    setValid(true)
   }
   return (
     <View style={styles.container}>

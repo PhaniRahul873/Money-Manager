@@ -1,4 +1,8 @@
 const IconList = {
+    Income:{
+        icon:'cash-multiple',
+        color:'darkgreen'
+    },
     Entertainment:{
         icon:'youtube-tv',
         color:'red'
@@ -24,8 +28,8 @@ const IconList = {
         color:'green'
     },
     Bills:{
-        icon:'cash-check',
-        color:'forestgreen'
+        icon:'cash-minus',
+        color:'lightcoral'
     },
     Electronics:{
         icon:'cellphone-link',

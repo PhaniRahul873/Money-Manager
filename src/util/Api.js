@@ -1,13 +1,16 @@
-const gauthamIPAddress = '192.168.29.171'; // Don't remove this. Please add yours.
-const ipAddress = gauthamIPAddress;
+const ipAddress = {
+  'gautham':'192.168.29.171',
+  'koushik':'192.168.1.34'
+}
+const url = `http://${ipAddress.koushik}:3000`
 
-
+//console.log(url)
 const getTransactionsList = async (
   startTime,
   endTime
 ) => {
   return fetch(
-    `http://${ipAddress}:3000/api/transactions?user=1&startTime=${startTime}&endTime=${endTime}`
+    `${url}/api/transactions?user=1&startTime=${startTime}&endTime=${endTime}`
   )
     .then(async (response) => {
       if (!response.ok) {
@@ -31,7 +34,7 @@ const getTransactionAmountByCategory = async (
   transactionType
 ) => {
   return fetch(
-    `http://${ipAddress}:3000/api/pieChart/getTransactionAmountByCategory?user=1&startTime=${startTime}&endTime=${endTime}&transactionType=${transactionType}`
+    `${url}/api/pieChart/getTransactionAmountByCategory?user=1&startTime=${startTime}&endTime=${endTime}&transactionType=${transactionType}`
   )
     .then(async (response) => {
       if (!response.ok) {
@@ -50,7 +53,7 @@ const getTransactionAmountByCategory = async (
 }
 
 const getBalance = (setBalance) => {
-  fetch(`http://${ipAddress}:3000/api/balance?user=1`)
+  fetch(`${url}/api/balance?user=1`)
     .then((response) => response.json())
     .then((data) => {
       // console.log('fetched data',data)
@@ -61,7 +64,7 @@ const getBalance = (setBalance) => {
 }
 
 const getRecentTransactions = (setDataList) => {
-  fetch(`http://${ipAddress}:3000/api/recents?user=1`)
+  fetch(`${url}/api/recents?user=1`)
     .then((response) => response.json())
     .then((data) => {
       // console.log('fetched data',data)
@@ -71,7 +74,7 @@ const getRecentTransactions = (setDataList) => {
 }
 
 const addExpense = (newItem) => {
-  fetch(`http://${ipAddress}:3000/api/expense`, {
+  fetch(`${url}/api/expense`, {
     method: 'POST',
     headers: { 'content-Type': 'application/json' },
     body: JSON.stringify(newItem)
@@ -82,13 +85,24 @@ const addExpense = (newItem) => {
 }
 
 const addIncome = (newItem) => {
-  fetch(`http://${ipAddress}:3000/api/income`, {
-    method: 'PUT',
+  fetch(`${url}/api/income`, {
+    method: 'POST',
     headers: { 'content-Type': 'application/json' },
     body: JSON.stringify(newItem)
   })
     .then((response) => response.json())
     .then((data) => console.log('new Income', data))
+    .catch((error) => console.log('Error', error))
+}
+
+const deleteExpense = (expense) => {
+  fetch(`${url}/api/deleteExpense`, {
+    method: 'DELETE',
+    headers: { 'content-Type': 'application/json' },
+    body: JSON.stringify(expense)
+  })
+    .then((response) => response.json())
+    .then((data) => console.log('deleted', data))
     .catch((error) => console.log('Error', error))
 }
 
@@ -98,5 +112,6 @@ module.exports = {
   getRecentTransactions,
   addExpense,
   addIncome,
+  deleteExpense,
   getTransactionsList
 }

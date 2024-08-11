@@ -30,9 +30,12 @@ const Home = () => {
         return (
             <ExpenseList     
             icon={icon}
-            description={item.description}
             color={color}
+            category={category}
+            description={item.description}
             amount={item.amount}
+            user={item.userId}
+            timeStamp={item.timeStamp}
             />
         )
     }
@@ -57,7 +60,7 @@ const Home = () => {
                 </View>
             </View>
             <View style={[{paddingHorizontal:20},{marginTop:20}]}>
-                <Text style={styles.spendText}>Spending History</Text>
+                <Text style={styles.spendText}>RECENTS</Text>
             </View>
             <View style={styles.listWrap}>
                 <FlatList
