@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
 import {
   View,
   Text,
@@ -10,11 +10,13 @@ import {
   TouchableWithoutFeedback,
   Keyboard
 } from "react-native";
+import UserContext from "../util/User";
 import { Picker } from "@react-native-picker/picker";
 import CatList from "../util/CatList";
 import { addExpense,addIncome } from '../util/Api'
 
-const ExpensePop = ({setValid}) => {
+const ExpensePop = ({setChange}) => {
+  const {user} = useContext(UserContext)
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState("");
   const [spentOn, setSpentOn] = useState("");
@@ -23,23 +25,22 @@ const ExpensePop = ({setValid}) => {
   const handleSave = () => {
     if (spentOn==='Income'){
         const newItem = {
-        "user": "1",
+        "user": user,
         "amount": amount,
         "category": spentOn,
         "description":description
       }
-      addIncome(newItem)
+      addIncome(newItem).then((data) => {setChange(data.currentBalance)})
     }else{
       const newItem = {
-        "user": "1",
+        "user": user,
         "amount": amount,
         "category": spentOn,
         "description": description,
       }
-      addExpense(newItem)
+      addExpense(newItem).then((data) => {setChange(data.currentBalance)})
     }
     setModalVisible(false)
-    setValid(true)
   }
   return (
     <View style={styles.container}>
@@ -88,10 +89,12 @@ const ExpensePop = ({setValid}) => {
               <View style={styles.endButtons}>
                 <Button
                   title="Cancel"
+                  color={"#e74c3c"}
                   onPress={() => setModalVisible(!modalVisible)}
                 />
                 <Button 
                   title="Save"
+                  color={"#3498db"}
                   onPress={handleSave}
                 />
               </View>

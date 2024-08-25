@@ -1,16 +1,45 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useState, useEffect } from "react";
-//import PieChartStat from "./src/pages/PieChart";
-import { NavigationContainer } from '@react-navigation/native';
-//import TransactionList from "./src/pages/TransactionList";
-import Tabs from './src/util/Tabs';
-import CalendarGrid from "./src/components/CalendarGrid";
+import { StatusBar } from 'expo-status-bar'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { UserProvider } from './src/util/User'
+import Tabs from './src/util/Tabs'
+import CalendarGrid from './src/components/CalendarGrid'
+import TransactionList from './src/pages/TransactionList'
+import Signup from './src/pages/Signup'
+import Login from './src/pages/Login'
 
-export default function App() {
+const Stack = createNativeStackNavigator()
+
+const App = () => {
   return (
-    <NavigationContainer>
-      <Tabs />
-    </NavigationContainer>
-    /*<CalendarGrid></CalendarGrid>*/
-  );
+    <UserProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Signup">
+          <Stack.Screen
+            name="Signup"
+            component={Signup}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Tabs"
+            component={Tabs}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+          name="Calender"
+          component={CalendarGrid}
+          options={{headerShown:false}}
+          />
+        </Stack.Navigator>
+        <StatusBar style="auto" hidden={false} />
+      </NavigationContainer>
+    </UserProvider>
+  )
 }
+
+export default App

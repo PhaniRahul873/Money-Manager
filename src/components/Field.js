@@ -1,14 +1,32 @@
-import React from 'react';
-import {TextInput} from 'react-native';
-import {darkGreen} from './Constants';
+import { React } from 'react'
+import {
+  TextInput,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard
+} from 'react-native'
 
-const Field = props => {
+const Field = (props) => {
   return (
-    <TextInput
-      {...props}
-      style={{borderRadius: 100, color: darkGreen, paddingHorizontal: 10, width: '78%', backgroundColor: 'rgb(220,220, 220)', marginVertical: 10}}
-      placeholderTextColor={darkGreen}></TextInput>
-  );
-};
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <TextInput
+        {...props}
+        style={Styles.text}
+        placeholderTextColor={'darkslateblue'}
+      ></TextInput>
+    </TouchableWithoutFeedback>
+  )
+}
 
-export default Field;
+const Styles = StyleSheet.create({
+  text: {
+    borderRadius: 100,
+    paddingHorizontal: 10,
+    width: 350,
+    backgroundColor: 'rgb(220,220, 220)',
+    marginVertical: 10,
+    height: 40
+  }
+})
+
+export default Field

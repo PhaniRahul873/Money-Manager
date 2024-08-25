@@ -7,7 +7,7 @@ export const getFormattedDate = (date) => {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
 
-    const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    const formattedDateTime = `${year}-${month}-${day}`;
 
     return formattedDateTime;
 }

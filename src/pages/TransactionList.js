@@ -5,19 +5,14 @@ import {
   View,
   SectionList,
   TouchableOpacity,
-  Dimensions,
-  FlatList,
-  Modal,
-  TextInput,
-  Button
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import DateDisplay from '../util/DateDisplay';
 import { getFormattedDate } from '../util/DateConversion';
 import { getTransactionsList } from '../util/Api';
 
-const TransactionList = () => {
+const TransactionList = (props) => {
+  const {navigation} = props
   const obj = new DateDisplay();
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -104,6 +99,11 @@ const TransactionList = () => {
     return category === 'Income' ? 'blue' : 'red';
   };
 
+  const handleCalenderPress = () => {
+    console.log('pressed calender')
+    navigation.navigate('Calender')
+  }
+
   const renderItem = ({ item }) => (
     <View style={styles.item}>
       <View style={styles.itemText}>
@@ -122,6 +122,11 @@ const TransactionList = () => {
 
   return (
     <View style={styles.container}>
+      <View>
+        <TouchableOpacity onPress={handleCalenderPress}>
+          <AntDesign style={styles.calender} name="calendar" size={30} color="rebeccapurple"/>
+        </TouchableOpacity>
+      </View>
       <View style={styles.buttons}>
         <TouchableOpacity style={styles.optionButton} onPress={PerformWeekly}>
           <Text style={styles.optionButtonText}>Weekly</Text>
@@ -151,253 +156,21 @@ const TransactionList = () => {
         renderItem={renderItem}
         renderSectionHeader={renderSectionHeader}
       />
-      <CalendarGrid />
     </View>
   );
 };
-
-const CalendarGrid = () => {
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(new Date().getMonth());
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [prices, setPrices] = useState({});
-  const [itemName, setItemName] = useState('');
-  const [itemPrice, setItemPrice] = useState('');
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isExpenseModalVisible, setIsExpenseModalVisible] = useState(false);
-
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const goToNextMonth = () => {
-    if (currentMonthIndex === 11) {
-      setCurrentMonthIndex(0);
-      setCurrentYear((prevYear) => prevYear + 1);
-    } else {
-      setCurrentMonthIndex((prevIndex) => prevIndex + 1);
-    }
-    setSelectedDay(null);
-  };
-
-  const goToPreviousMonth = () => {
-    if (currentMonthIndex === 0) {
-      setCurrentMonthIndex(11);
-      setCurrentYear((prevYear) => prevYear - 1);
-    } else {
-      setCurrentMonthIndex((prevIndex) => prevIndex - 1);
-    }
-    setSelectedDay(null);
-  };
-
-  const goToYear = (year) => {
-    setCurrentYear(year);
-    setSelectedDay(null);
-  };
-
-  const handleDayPress = (day) => {
-    setSelectedDay(day);
-    setIsModalVisible(true);
-  };
-
-  const handleItemNameChange = (name) => {
-    setItemName(name);
-  };
-
-  const handleItemPriceChange = (price) => {
-    setItemPrice(price);
-  };
-
-  const handleSubmitPrice = () => {
-    setPrices((prevPrices) => ({
-      ...prevPrices,
-      [currentYear]: {
-        ...(prevPrices[currentYear] || {}),
-        [months[currentMonthIndex]]: {
-          ...(prevPrices[currentYear]?.[months[currentMonthIndex]] || {}),
-          [selectedDay]: { name: itemName, price: itemPrice }
-        }
-      }
-    }));
-    setIsModalVisible(false);
-    setItemName('');
-    setItemPrice('');
-  };
-
-  const handleOpenExpenseModal = () => {
-    setIsModalVisible(false);
-    setIsExpenseModalVisible(true);
-  };
-
-  const handleCloseExpenseModal = () => {
-    setIsExpenseModalVisible(false);
-  };
-
-  const totalDaysInMonth = new Date(currentYear, currentMonthIndex + 1, 0).getDate();
-  const daysOfMonth = Array.from({ length: totalDaysInMonth }, (_, index) => index + 1);
-
-  return (
-    <View style={calendarStyles.container}>
-      <View style={calendarStyles.navigation}>
-        <TouchableOpacity onPress={goToPreviousMonth}>
-          <Icon name="chevron-left" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={calendarStyles.monthYearHeading}>{months[currentMonthIndex]} {currentYear}</Text>
-        <TouchableOpacity onPress={goToNextMonth}>
-          <Icon name="chevron-right" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-      <View style={calendarStyles.yearNavigation}>
-        <Button title="2023" onPress={() => goToYear(2023)} />
-        <Button title="2024" onPress={() => goToYear(2024)} />
-        <Button title="2025" onPress={() => goToYear(2025)} />
-      </View>
-      <FlatList
-        data={daysOfMonth}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              calendarStyles.dayItem,
-              selectedDay === item && calendarStyles.selectedDayItem
-            ]}
-            onPress={() => handleDayPress(item)}
-          >
-            <Text>{item}</Text>
-            {prices[currentYear]?.[months[currentMonthIndex]]?.[item] && (
-              <Text>
-                {prices[currentYear][months[currentMonthIndex]][item].name}: Rs.
-                {prices[currentYear][months[currentMonthIndex]][item].price}
-              </Text>
-            )}
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.toString()}
-        numColumns={7}
-      />
-      <Modal visible={isModalVisible} transparent={true} animationType="slide">
-        <View style={calendarStyles.modalContainer}>
-          <View style={calendarStyles.modalContent}>
-            <Text style={calendarStyles.modalHeading}>Add Price for {selectedDay} {months[currentMonthIndex]}</Text>
-            <TextInput
-              placeholder="Item Name"
-              value={itemName}
-              onChangeText={handleItemNameChange}
-              style={calendarStyles.input}
-            />
-            <TextInput
-              placeholder="Price"
-              value={itemPrice}
-              onChangeText={handleItemPriceChange}
-              keyboardType="numeric"
-              style={calendarStyles.input}
-            />
-            <Button title="Submit" onPress={handleSubmitPrice} />
-            <Button title="Add New Expense" onPress={handleOpenExpenseModal} />
-            <Button title="Close" onPress={() => setIsModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
-      <Modal visible={isExpenseModalVisible} transparent={true} animationType="slide">
-        <View style={calendarStyles.modalContainer}>
-          <View style={calendarStyles.modalContent}>
-            <Text style={calendarStyles.modalHeading}>Add New Expense for {selectedDay} {months[currentMonthIndex]}</Text>
-            <TextInput
-              placeholder="Item Name"
-              value={itemName}
-              onChangeText={handleItemNameChange}
-              style={calendarStyles.input}
-            />
-            <TextInput
-              placeholder="Price"
-              value={itemPrice}
-              onChangeText={handleItemPriceChange}
-              keyboardType="numeric"
-              style={calendarStyles.input}
-            />
-            <Button title="Submit" onPress={handleSubmitPrice} />
-            <Button title="Close" onPress={handleCloseExpenseModal} />
-          </View>
-        </View>
-      </Modal>
-    </View>
-  );
-};
-const { width, height } = Dimensions.get('window');
-const dayItemWidth = width / 7; // Adjust the width of each day item to occupy one-sixth of the screen width
-const dayItemHeight = height / 7; // Adjust the height of each day item to occupy
-const calendarStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f0f0f0', // Background color for the entire screen
-  },
-  navigation: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    paddingHorizontal: 10,
-    marginBottom: 5,
-    marginTop: -280,
-  },
-  yearNavigation: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: 1,
-  },
-  monthYearHeading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333', // Text color for the month and year heading
-  },
-  dayItem: {
-    width: dayItemWidth,
-    height: dayItemHeight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc', // Border color for each day item
-    borderRadius: 10,
-    backgroundColor: '#fff', // Background color for each day item
-    marginBottom: 5,
-    position: 'relative',
-  },
-  selectedDayItem: {
-    backgroundColor: 'lightblue',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    width: Dimensions.get('window').width - 40,
-  },
-  modalHeading: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  input: {
-    height: 40,
-    borderColor: 'grey',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-});
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 22,
     backgroundColor: 'lavender',
+  },
+  calender:{
+    flexDirection:'row',
+    alignSelf:'flex-end',
+    paddingTop:30,
+    paddingRight:20
   },
   header: {
     backgroundColor: '#f2f2f2',
@@ -471,7 +244,7 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: 'row',
-    paddingTop: 50,
+    paddingTop: 20,
     justifyContent: 'space-around',
   },
   contentItem: {
