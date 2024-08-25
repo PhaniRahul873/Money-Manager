@@ -1,5 +1,4 @@
-import React from "react";
-import { useState,useEffect } from "react";
+import React ,{ useState,useEffect,useContext } from "react";
 import { View,StyleSheet,SafeAreaView,Text,FlatList } from "react-native";
 import { getBalance,getRecentTransactions } from "../util/Api"
 import ExpenseList from "../components/ExpenseList";
@@ -8,14 +7,23 @@ import DayDate from "../components/DayDate";
 import IconList from "../util/IconList";
 import AppName from "../components/AppName";
 import Icon from "../components/Icon";
+import UserContext from "../util/User";
 
 const Home = () => {
+    const {user} = useContext(UserContext)
     const [balance,setBalance] = useState("no money")
     const [dataList,setDataList] = useState([])
     const [valid,setValid] = useState(true)
+    // console.log(user)
     const fetchData = () => {
-        getBalance(setBalance)
-        getRecentTransactions(setDataList)
+        getBalance(user).then((currentBalance) => {
+            console.log("displaying current balance",currentBalance)
+            if (currentBalance) {setBalance(currentBalance)}
+        })
+        getRecentTransactions(user).then((data) => {
+            // console.log('datalist',data)
+            if (data) {setDataList(data)}
+        })
     }
     useEffect (() => {
         if (valid){
@@ -23,6 +31,12 @@ const Home = () => {
             setValid(false)
         }
     },[valid])
+
+    const [change,setChange] = useState(balance)
+
+    useEffect (() => {
+        if (change!==balance){setValid(true)}
+    },[change])
 
     const renderItem = ({ item }) => {
         const category = item.category
@@ -39,7 +53,7 @@ const Home = () => {
             />
         )
     }
-
+    
     return(
         <SafeAreaView style={styles.container}>
             <View style={[styles.wrap,{marginTop:10}]}>
@@ -56,7 +70,7 @@ const Home = () => {
                     </View>
                 </View>
                 <View>
-                    <ExpensePop setValid={setValid}/>
+                    <ExpensePop setChange={setChange}/>
                 </View>
             </View>
             <View style={[{paddingHorizontal:20},{marginTop:20}]}>

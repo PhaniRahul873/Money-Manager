@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,useContext } from 'react'
 import {
   StyleSheet,
   FlatList,
@@ -10,15 +10,16 @@ import {
   View
 } from 'react-native'
 import PieChart from 'react-native-pie-chart'
-import HorizontalSlider from 'react-horizontal-slider'
 import { AntDesign } from '@expo/vector-icons'
 import DateDisplay from '../util/DateDisplay'
 import { getTransactionAmountByCategory } from '../util/Api'
 import { getFormattedDate } from '../util/DateConversion'
 import randomColor from 'randomcolor'
+import UserContext from '../util/User'
 
 const PieChartStat = () => {
   const widthAndHeight = 250
+  const {user} = useContext(UserContext)
   const [sliceColor, setSliceColor] = useState([randomColor()])
   const obj = new DateDisplay()
   const [frequency, setFrequency] = useState(obj.get_weeks_data())
@@ -34,6 +35,7 @@ const PieChartStat = () => {
     const fetchData = async () => {
       try {
         const data = await getTransactionAmountByCategory(
+          user,
           startDate,
           endDate,
           transactionType

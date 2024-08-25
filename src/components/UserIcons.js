@@ -1,6 +1,6 @@
 import React from "react";
 import { MaterialIcons } from '@expo/vector-icons';
-import { TouchableOpacity,Text,StyleSheet,View } from "react-native";
+import { TouchableOpacity,Text,StyleSheet } from "react-native";
 
 const UserIcons = (props) => {
     const {icon,color,name} = props

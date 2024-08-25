@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useContext } from "react";
 import {
   Text,
   View,
@@ -7,57 +7,43 @@ import {
   ScrollView,
   TouchableOpacity
 } from "react-native";
-import axios from 'axios';
-import Icon from "../components/Icon"; // Ensure the correct path
-import UpdatePop from "../components/UpdatePop"; // Ensure the correct path
-import DeletePop from "../components/DeletePop";
+import UserContext from "../util/User";
+import Icon from "../components/Icon"
+import UpdatePop from "../components/UpdatePop"
+import DeletePop from "../components/DeletePop"
+import { getUserDetails } from "../util/Api";
 
 const ProfilePage = () => {
-  const [userDetails, setUserDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const {user} = useContext(UserContext)
+  const [valid,setValid] = useState(true)
+  const [userDetails, setUserDetails] = useState(null)
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const response = await axios.get('http://192.168.1.34:3000/api/user?userId=1', {
-          headers: {
-            'Content-Type': 'application/json',
-            // 'Authorization': 'Bearer YOUR_ACCESS_TOKEN' // Include if required
-          }
-        });
-        setUserDetails(response.data)
-      } catch (err) {
-        setError('Failed to fetch user details');
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const fetchUserDetails = () => {
+    getUserDetails(user).then((data) => {
+        console.log('UserDetails',data)
+        if (data) {setUserDetails(data)}
+    })
+  }
+  useEffect (() => {
+      if (valid){
+          fetchUserDetails()
+          setValid(false)
       }
-    };
-
-    fetchUserDetails();
-  }, []);
-
-
-  const handleUpdateSuccess = () => {
-    fetchUserDetails(); // Refresh user details after update
-    setIsUpdateModalVisible(false);
-  };
+  },[valid])
 
   const handleDeleteSuccess = () => {
-    // Handle successful deletion
-    setUserDetails(null); // Clear user details
+    setUserDetails(null);
     setIsDeleteModalVisible(false);
   };
 
   const handleUpdate = () => {
-    setIsUpdateModalVisible(true); // Show the update modal
+    setIsUpdateModalVisible(true);
   };
 
   const handleDelete = () => {
-    setIsDeleteModalVisible(true); // Show the delete confirmation modal
+    setIsDeleteModalVisible(true);
   };
 
 
@@ -77,12 +63,7 @@ const ProfilePage = () => {
               </View>
 
               <View style={styles.detailBlock}>
-                <Text style={styles.label}>User ID</Text>
-                <Text style={styles.value}>{userDetails.userId}</Text>
-              </View>
-
-              <View style={styles.detailBlock}>
-                <Text style={styles.label}>Password </Text>
+                <Text style={styles.label}>Password</Text>
                 <Text style={styles.value}>{userDetails.passwordHash}</Text>
               </View>
 
@@ -124,7 +105,7 @@ const ProfilePage = () => {
             visible={isUpdateModalVisible}
             onClose={() => setIsUpdateModalVisible(false)}
             userDetails={userDetails}
-            onUpdate={handleUpdateSuccess}
+            onUpdate={setValid}
           />
           <DeletePop
             visible={isDeleteModalVisible}

@@ -5,36 +5,29 @@ import {
   StyleSheet,
   TextInput,
   Modal,
-  Button
+  Button,
+  Alert
 } from "react-native";
-import axios from 'axios';
+import { updateUserDetails } from "../util/Api";
 
-const UpdatePop = ({ visible, onClose, userDetails, onUpdate }) => {
-  const [formData, setFormData] = useState(userDetails);
+const UpdatePop = (props) => {
 
-  const handleInputChange = (field, value) => {
-    setFormData(prevData => ({
-      ...prevData,
-      [field]: value
-    }));
-  };
-
-  const handleUpdate = async () => {
-    try {
-      await axios.put('http://192.168.29.230:3000/api/user/update?userId=1', formData, {
-        headers: {
-          'Content-Type': 'application/json',
-          
-        }
-      });
-      alert('User details updated successfully');
-      onUpdate(response.data); 
-      onClose(); 
-    } catch (err) {
-      console.error(err);
+  const { visible, onClose, userDetails, onUpdate } = props
+  const [userName,setUserName] = useState(userDetails.userName)
+  const [passwordHash,setPasswordHash] = useState(userDetails.passwordHash)
+  const [email,setEmail] = useState(userDetails.email)
+  const handleUpdate = () => {
+    const updateUser = {
+      "email": email, 
+      "passwordHash":passwordHash, 
+      "userId": userDetails.userId, 
+      "userName": userName
     }
-  };
-
+    updateUserDetails(updateUser).then((data)=>{})
+    onClose()
+    Alert.alert('Success', 'User Details updated')
+    onUpdate(true)
+  }
   return (
     <Modal
       visible={visible}
@@ -49,32 +42,20 @@ const UpdatePop = ({ visible, onClose, userDetails, onUpdate }) => {
           <TextInput
             style={styles.input}
             placeholder="User Name"
-            value={formData.userName}
-            onChangeText={(text) => handleInputChange('userName', text)}
+            value={userName}
+            onChangeText={(text) => setUserName(text)}
           />
           <TextInput
             style={styles.input}
             placeholder="Password Hash"
-            value={formData.passwordHash}
-            onChangeText={(text) => handleInputChange('passwordHash', text)}
+            value={passwordHash}
+            onChangeText={(text) => setPasswordHash(text)}
           />
-          {/* <TextInput
-            style={styles.input}
-            placeholder="Creation Date"
-            value={formData.createDate}
-            onChangeText={(text) => handleInputChange('createDate', text)}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Current Balance"
-            value={formData.currentBalance}
-            onChangeText={(text) => handleInputChange('currentBalance', text)}
-          /> */}
           <TextInput
             style={styles.input}
             placeholder="Email"
-            value={formData.email}
-            onChangeText={(text) => handleInputChange('email', text)}
+            value={email}
+            onChangeText={(text) => setEmail(text)}
           />
 
           <View style={styles.modalButtons}>
