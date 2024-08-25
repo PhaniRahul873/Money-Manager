@@ -57,10 +57,6 @@ const PieChartStat = () => {
     setEndDate(getFormattedDate(frequency[period].endDate));
   }, [period,frequency]);
 
-  const ModifyStartTimeEndTime = () => {
-    setStartDate(getFormattedDate(frequency[period].startDate))
-    setEndDate(getFormattedDate(frequency[period].endDate))
-  }
 
   const PerformWeekly = () => {
     setPeriod(0)

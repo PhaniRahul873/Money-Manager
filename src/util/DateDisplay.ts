@@ -62,12 +62,13 @@ export default class DateDisplay {
       // Start from the current month and go backwards
       for (let i = 0; i < 12; i++) {
         const monthIndex = (this.curr_month - 1 - i + 12) % 12;
-        const year = new Date().getFullYear() - Math.floor((this.curr_month - i) / 12);
+        const year = new Date().getFullYear() - Math.floor((this.curr_month - i > 0 ? this.curr_month - i : 0) / 12);
         const startDate = new Date(year, monthIndex, 1);
         const endDate = new Date(year, monthIndex + 1, 0); // last day of the month
         const range = months[monthIndex];
         month_values.push({ range, startDate, endDate });
       }
+      console.log(month_values);
       return month_values.reverse();
     }
   
