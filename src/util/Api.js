@@ -2,7 +2,7 @@ const ipAddress = {
   'gautham':'192.168.29.171',
   'koushik':'192.168.1.37'
 }
-const url = `http://${ipAddress.koushik}:3000`
+const url = `http://${ipAddress.gautham}:3000`
 
 //console.log(url)
 const getTransactionsList = async (
@@ -91,6 +91,25 @@ const getRecentTransactions = (user) => {
 
 const getUserDetails = (user) => {
   return fetch(`${url}/api/user?userId=${user}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok for userdetails');
+      }
+      return response.json();
+    })
+    .then((data) => {
+      // console.log('fetched user data', data);
+      return data;
+    })
+    .catch((error) => {
+      console.error('error loading data', error);
+      throw error;
+    });
+};
+
+const checkUserDetails = (user, password) => {
+  console.log("I am here");
+  return fetch(`${url}/api/user/check?userInput=${user}&passwordHash=${password}`)
     .then((response) => {
       if (!response.ok) {
         throw new Error('Network response was not ok for userdetails');
@@ -248,6 +267,7 @@ module.exports = {
   getTransactionsList,
   createUser,
   getUserDetails,
+  checkUserDetails,
   updateUserDetails,
   deleteUser
 }

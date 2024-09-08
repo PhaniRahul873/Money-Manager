@@ -12,8 +12,11 @@ import Icon from "../components/Icon"
 import UpdatePop from "../components/UpdatePop"
 import DeletePop from "../components/DeletePop"
 import { getUserDetails } from "../util/Api";
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { Alert } from 'react-native'
 
-const ProfilePage = () => {
+const ProfilePage = (props) => {
+  const { navigation } = props
   const {user} = useContext(UserContext)
   const [valid,setValid] = useState(true)
   const [userDetails, setUserDetails] = useState(null)
@@ -46,9 +49,18 @@ const ProfilePage = () => {
     setIsDeleteModalVisible(true);
   };
 
+  const handleSignOut = () => {
+    Alert.alert('Signing Out from the App');
+    navigation.navigate('Login');
+  }
 
   return (
     <SafeAreaView style={styles.container}>
+      <View>
+        <TouchableOpacity onPress={handleSignOut}>
+          <Ionicons style={styles.signOut} name="exit" size={40} color="black" />
+        </TouchableOpacity>
+      </View>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profile}>
           <Icon name={"user-circle-o"} size={150} color={"teal"} />
@@ -170,6 +182,12 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  signOut:{
+    flexDirection:'row',
+    alignSelf:'flex-end',
+    paddingTop:30,
+    paddingRight:20
   },
 });
 

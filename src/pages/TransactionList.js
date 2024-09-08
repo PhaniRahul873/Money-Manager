@@ -45,7 +45,9 @@ const TransactionList = (props) => {
   };
 
   const PerformMonthly = () => {
+    console.log("Hi");
     setFrequency(obj.get_months_data());
+    console.log(frequency[period]);
     ModifyStartTimeEndTime();
   };
 
@@ -66,17 +68,10 @@ const TransactionList = (props) => {
     ModifyStartTimeEndTime();
   };
 
-  const formatDate = (date) => {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
   const transformData = (transactions) => {
     const groupedByDate = transactions.reduce((acc, transaction) => {
       const date = new Date(transaction.timeStamp.split(' ')[0]);
-      const formattedDate = formatDate(date);
+      const formattedDate = getFormattedDate(date);
 
       if (!acc[formattedDate]) {
         acc[formattedDate] = { date: formattedDate, data: [] };

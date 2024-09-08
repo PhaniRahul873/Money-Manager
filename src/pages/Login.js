@@ -1,4 +1,4 @@
-import React, { useState,useContext } from 'react'
+import React, { useState,useContext, useEffect } from 'react'
 import {
   View,
   Text,
@@ -13,15 +13,41 @@ import Background from '../components/Background'
 import Field from '../components/Field'
 import SignUpButton from '../components/SignUpButton'
 import UserContext from '../util/User'
+import { checkUserDetails } from '../util/Api'
 
 const Login = (props) => {
   const { navigation } = props
   const {setUser} = useContext(UserContext)
   const [userName, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [errorFlag, setErrorFlag] = useState(false)
 
   const handleLogin = async () => {
-    // Handle login logic here
+    console.log("Hello");
+    try{
+      const result = await checkUserDetails(userName, password);
+      if(result){
+        setErrorFlag(false);
+        navigation.navigate('Tabs');
+      }
+    } catch {
+      setErrorFlag(true);
+    }
+    console.log("I am here");
+  }
+
+  useEffect(() => {
+    <ErrorComponent />
+  },[errorFlag]);
+
+  const ErrorComponent=() => {
+    if(errorFlag) {
+      return (
+        <Text style={styles.error}> Incorrect UserName/Password</Text>
+      )
+    } else {
+      return;
+    }
   }
 
   return (
@@ -36,7 +62,7 @@ const Login = (props) => {
               style={{ marginBottom: 30, paddingRight:20}}
             />
             <Field
-              placeholder="Username"
+              placeholder="Username/Email"
               value={userName}
               onChangeText={setUsername}
             />
@@ -47,6 +73,7 @@ const Login = (props) => {
               onChangeText={setPassword}
             />
             <SignUpButton btnLabel="Login" Press={handleLogin} />
+            <ErrorComponent />
             <View style={styles.signupContainer}>
               <Text style={styles.signupText}>No account?</Text>
               <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
@@ -86,6 +113,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#006A42'
+  },
+  error: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'red'
   }
 })
 

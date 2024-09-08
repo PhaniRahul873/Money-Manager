@@ -68,7 +68,6 @@ export default class DateDisplay {
         const range = months[monthIndex];
         month_values.push({ range, startDate, endDate });
       }
-      console.log(month_values);
       return month_values.reverse();
     }
   
