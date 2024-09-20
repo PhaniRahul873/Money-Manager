@@ -23,17 +23,17 @@ const Login = (props) => {
   const [errorFlag, setErrorFlag] = useState(false)
 
   const handleLogin = async () => {
-    console.log("Hello");
     try{
       const result = await checkUserDetails(userName, password);
       if(result){
         setErrorFlag(false);
+        // console.log(result.userId)
+        setUser(result.userId)
         navigation.navigate('Tabs');
       }
     } catch {
       setErrorFlag(true);
     }
-    console.log("I am here");
   }
 
   useEffect(() => {

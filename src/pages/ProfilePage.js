@@ -19,6 +19,7 @@ const ProfilePage = (props) => {
   const { navigation } = props
   const {user} = useContext(UserContext)
   const [valid,setValid] = useState(true)
+  const [updates,setUpdates] = useState(null)
   const [userDetails, setUserDetails] = useState(null)
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -29,16 +30,21 @@ const ProfilePage = (props) => {
         if (data) {setUserDetails(data)}
     })
   }
-  useEffect (() => {
-      if (valid){
-          fetchUserDetails()
-          setValid(false)
-      }
+
+  useEffect(()=>{
+    if(valid){
+      fetchUserDetails()
+      setValid(false)
+    }
   },[valid])
 
+  useEffect (() => {
+    if(updates!==userDetails){setValid(true)}
+  },[updates])
+
   const handleDeleteSuccess = () => {
-    setUserDetails(null);
     setIsDeleteModalVisible(false);
+    navigation.navigate("Signup")
   };
 
   const handleUpdate = () => {
@@ -117,7 +123,7 @@ const ProfilePage = (props) => {
             visible={isUpdateModalVisible}
             onClose={() => setIsUpdateModalVisible(false)}
             userDetails={userDetails}
-            onUpdate={setValid}
+            onUpdate={setUpdates}
           />
           <DeletePop
             visible={isDeleteModalVisible}

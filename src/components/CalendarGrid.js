@@ -1,132 +1,186 @@
-import React, { useState } from 'react'
-import {
-  View,
-  FlatList,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  Pressable
-} from 'react-native'
-import Icon from 'react-native-vector-icons/FontAwesome'
+import React, { useState } from 'react';
+import {View,FlatList,Text,StyleSheet,TouchableOpacity,Dimensions,Pressable,SafeAreaView
+} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { AntDesign } from '@expo/vector-icons';
+import Entypo from '@expo/vector-icons/Entypo';
 
-const CalendarGrid = () => {
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(
-    new Date().getMonth()
-  )
-  const [selectedDay, setSelectedDay] = useState(null)
-  const [color, setColor] = useState('lavender')
+const CalendarGrid = (props) => {
+  const {navigation} = props;
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(new Date().getMonth());
+  const [currentYear,setCurrentYear] = useState(new Date().getFullYear())
+  const [selectedDay, setSelectedDay] = useState(null);
 
-  // Dummy data for months
   const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ]
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
 
-  // Function to handle navigation to the next month
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const firstDayOfMonth = new Date(currentYear, currentMonthIndex, 1).getDay();
+  const totalDaysInMonth = new Date(currentYear, currentMonthIndex + 1, 0).getDate();
+
+  const daysOfMonth = [
+    ...Array(firstDayOfMonth).fill(null),
+    ...Array.from({ length: totalDaysInMonth }, (_, index) => index + 1)
+  ];
+
   const goToNextMonth = () => {
-    setCurrentMonthIndex((prevIndex) => (prevIndex === 11 ? 0 : prevIndex + 1))
-    setSelectedDay(null) // Reset selected day when navigating to the next month
-  }
+    setCurrentMonthIndex((prevIndex) =>{
+      if(prevIndex===11){
+        setCurrentYear(currentYear+1)
+        return 0;
+      }else{return prevIndex+1;}
+    });
+    setSelectedDay(null);
+  };
 
-  // Function to handle navigation to the previous month
   const goToPreviousMonth = () => {
-    setCurrentMonthIndex((prevIndex) => (prevIndex === 0 ? 11 : prevIndex - 1))
-    setSelectedDay(null) // Reset selected day when navigating to the previous month
-  }
+    setCurrentMonthIndex((prevIndex) => {
+      if(prevIndex===0){
+        setCurrentYear(currentYear-1)
+        return 11;
+      }else{return prevIndex-1;}
+    });
+    setSelectedDay(null);
+  };
 
-  // Function to handle day selection
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+  const requestDate = (date) => {
+    const day = date.getDate();
+    const suffix = (day) => {
+      if (day > 3 && day < 21) return 'th';
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+    
+    const dayWithSuffix = `${day}${suffix(day)}`;
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${dayWithSuffix} ${month} ${year}`;
+  };
+  
   const handleDayPress = (day) => {
-    console.log('long pressed', day)
-    setSelectedDay(day)
-  }
+    const dateOfPressedDay = new Date(currentYear, currentMonthIndex, day);
+    
+    const startDate = new Date(dateOfPressedDay);
+    startDate.setHours(0, 0, 0, 0);
 
-  // Get the current year
-  const currentYear = new Date().getFullYear()
+    const endDate = new Date(dateOfPressedDay);
+    endDate.setHours(23, 59, 59, 999);
+    
+    const startingDate = formatDate(startDate);
+    const endingDate = formatDate(endDate);
+    const dateDetails = requestDate(startDate);
+    
+    navigation.navigate("Tabs", { 
+      screen: 'Transactions', 
+      params: { startingDate,endingDate,dateDetails }
+    });
 
-  // Get the total number of days in the current month
-  const totalDaysInMonth = new Date(
-    currentYear,
-    currentMonthIndex + 1,
-    0
-  ).getDate()
-  const daysOfMonth = Array.from(
-    { length: totalDaysInMonth },
-    (_, index) => index + 1
-  )
+    setSelectedDay(day);
+};
+  const handleBackPress = () => {
+    navigation.navigate('Tabs', { screen: 'Transactions' });
+  };
+
+  const renderItem = ({ item }) => {
+    return (
+      <Pressable
+      style={({pressed})=>[
+        styles.dayItem,
+        {backgroundColor:!item ? 'transparent' : pressed ? 
+        'lightseagreen' : item===selectedDay ? 'lightseagreen' : 'lavender'},
+        {borderWidth : !item ? 0:1},
+      ]}
+      onPress={() =>{
+        handleDayPress(item)
+      }}
+      disabled={!item}
+    >
+      {/* {item ? <Text style={styles.dayText}>{item}</Text> : null} */}
+      <View style = {[{flexDirection:'column'},{alignItems:'center'}]}>
+      <Text style={styles.dayText}>{item}</Text>
+      {/* <Entypo name="dot-single" size={20} color="red" /> */}
+      </View>
+    </Pressable>
+    )
+}
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.monthYearHeading}>Expenses</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Expenses by Date</Text>
+        <View style={{flex: 1}}/>
+        <TouchableOpacity onPress={handleBackPress}>
+          <AntDesign name="back" size={30} color="black" />
+        </TouchableOpacity>
+      </View>
+      
       <View style={styles.navigation}>
         <TouchableOpacity onPress={goToPreviousMonth}>
-          <Icon name="chevron-left" size={24} color="black" />
+          <Icon name="angle-double-left" size={30} color="black" />
         </TouchableOpacity>
         <Text style={styles.monthYearHeading}>
           {months[currentMonthIndex]} {currentYear}
         </Text>
         <TouchableOpacity onPress={goToNextMonth}>
-          <Icon name="chevron-right" size={24} color="black" />
+          <Icon name="angle-double-right" size={30} color="black" />
         </TouchableOpacity>
       </View>
+
+      <View style={styles.daysOfWeekContainer}>
+        {daysOfWeek.map((day) => (
+          <Text key={day} style={styles.dayOfWeek}>{day}</Text>
+        ))}
+      </View>
+
       <FlatList
         data={daysOfMonth}
         style={{ marginTop: 10 }}
-        renderItem={({ item }) => (
-          <Pressable
-            style={({ pressed }) => [
-              styles.dayItem,
-              {
-                backgroundColor: pressed
-                  ? color
-                  : item === selectedDay
-                  ? color
-                  : 'lavender'
-              }
-            ]}
-            onPressIn={() => {
-              setColor('lightseagreen')
-              setSelectedDay(item)
-            }}
-            onPressOut={() => {
-              setColor('lavender')
-            }}
-            onPress={() => {
-              console.log('pressed and removed')
-              console.log(selectedDay)
-            }}
-            onLongPress={() => handleDayPress(item)} // Pass the `item` (day) to `handleDayPress`
-          >
-            <Text style={styles.dayText}>{item}</Text>
-          </Pressable>
-        )}
-        keyExtractor={(item) => `${item}`}
-        numColumns={6} // Display 6 days per row
+        renderItem={renderItem}
+        keyExtractor={(item, index) => item ? `${item}-${index}` : `empty-${index}`}
+        numColumns={7}
       />
-    </View>
-  )
-}
+    </SafeAreaView>
+  );
+};
 
-const { width, height } = Dimensions.get('window')
-const dayItemWidth = width / 6 // Adjust the width of each day item to occupy one-sixth of the screen width
-const dayItemHeight = height / 9 // Adjust the height of each day item to occupy one-seventh of the screen height
+const { width, height } = Dimensions.get('window');
+const dayItemWidth = width / 7.3;
+const dayItemHeight = height / 13;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'lightsteelblue',
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'lightsteelblue' // Background color for the entire screen
+    marginTop: 10,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
   },
   navigation: {
     flexDirection: 'row',
@@ -134,13 +188,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
-    marginBottom: 10,
-    marginTop: 30
+    marginVertical: 20,
   },
   monthYearHeading: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333' // Text color for the month and year heading
+    color: '#333',
+  },
+  daysOfWeekContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+  },
+  dayOfWeek: {
+    width: dayItemWidth,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#333',
   },
   dayItem: {
     width: dayItemWidth,
@@ -148,49 +212,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ccc', // Border color for each day item
-    borderRadius: 10,
-    backgroundColor: 'lavender', // Background color for each day item
-    marginTop: 5,
-    position: 'relative'
-  },
-  selectedDay: {
-    backgroundColor: 'red' // Background color when a day is selected
-  },
-  dayText: {
-    fontSize: 18,
-    color: '#333' // Text color for the day number
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)'
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center'
-  },
-  input: {
-    width: '100%',
-    borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10
+    margin: 1,
   },
-  modalText: {
-    fontSize: 18,
-    marginBottom: 10,
-    color: '#333' // Text color for modal text
+  dayText: {
+    fontSize: 16,
+    color: '#333',
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%'
-  }
-})
+});
 
-export default CalendarGrid
+export default CalendarGrid;

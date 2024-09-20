@@ -8,14 +8,15 @@ import {
   StyleSheet,
   TextInput,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Alert
 } from "react-native";
 import UserContext from "../util/User";
 import { Picker } from "@react-native-picker/picker";
 import CatList from "../util/CatList";
 import { addExpense,addIncome } from '../util/Api'
 
-const ExpensePop = ({setChange}) => {
+const ExpensePop = ({setChange,balance}) => {
   const {user} = useContext(UserContext)
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState("");
@@ -31,6 +32,7 @@ const ExpensePop = ({setChange}) => {
         "description":description
       }
       addIncome(newItem).then((data) => {setChange(data.currentBalance)})
+      Alert.alert("Income added")
     }else{
       const newItem = {
         "user": user,
@@ -38,19 +40,22 @@ const ExpensePop = ({setChange}) => {
         "category": spentOn,
         "description": description,
       }
-      addExpense(newItem).then((data) => {setChange(data.currentBalance)})
+      if(amount<=balance){
+        addExpense(newItem).then((data) => {setChange(data.currentBalance)})
+        Alert.alert("New Expense added")
+      }else{
+        Alert.alert("Insufficient funds")
+      }
     }
     setModalVisible(false)
   }
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText} onPress={() => setModalVisible(true)}>
-          add
-        </Text>
+      <TouchableOpacity style={styles.button} onPress={() => {setModalVisible(true);}}>
+        <Text style={styles.buttonText}>add</Text>
       </TouchableOpacity>
       <Modal
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
@@ -76,7 +81,7 @@ const ExpensePop = ({setChange}) => {
               <View style={styles.pickWrap}>
                 <Picker
                   selectedValue={spentOn}
-                  onValueChange={(itemValue, itemIndex) => setSpentOn(itemValue)}
+                  onValueChange={(itemValue) => setSpentOn(itemValue)}
                   style={[styles.picker]}
                   itemStyle={[{ textAlign: "center" }, { fontSize: 20 }]}
                 >
@@ -143,7 +148,7 @@ const styles = StyleSheet.create({
   },
   pickWrap: {
     borderRadius: 5,
-    overflow: "hidden", // Clip content inside
+    overflow: "hidden",
     marginBottom: 10,
     borderColor: "grey",
   },

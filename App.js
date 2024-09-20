@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { UserProvider } from './src/util/User'
 import Tabs from './src/util/Tabs'
 import CalendarGrid from './src/components/CalendarGrid'
-import TransactionList from './src/pages/TransactionList'
 import Signup from './src/pages/Signup'
 import Login from './src/pages/Login'
 
@@ -14,7 +13,7 @@ const App = () => {
   return (
     <UserProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Signup">
+        <Stack.Navigator initialRouteName="Tabs">
           <Stack.Screen
             name="Signup"
             component={Signup}

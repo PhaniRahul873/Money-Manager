@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  SectionList,
-  TouchableOpacity,
-} from 'react-native';
+import React, { useState, useEffect,useContext} from 'react';
+import {StyleSheet,Text,View,SectionList,TouchableOpacity} from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
 import DateDisplay from '../util/DateDisplay';
 import { getFormattedDate } from '../util/DateConversion';
 import { getTransactionsList } from '../util/Api';
+import UserContext from '../util/User';
 
 const TransactionList = (props) => {
-  const {navigation} = props
+  const route = useRoute();
+  const { navigation } = props;
+  const { user } = useContext(UserContext);
   const obj = new DateDisplay();
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [transactionData, setTransactionData] = useState([]);
   const [frequency, setFrequency] = useState(obj.get_weeks_data());
+  const [isFromCalendar, setIsFromCalendar] = useState(false);
+  const [requestDate,setRequestDate] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getTransactionsList(startDate, endDate);
+        const data = await getTransactionsList(user, startDate, endDate);
         if (data) {
           const transactions = transformData(data);
           setTransactionData(transactions);
@@ -34,38 +34,44 @@ const TransactionList = (props) => {
     fetchData();
   }, [startDate, endDate]);
 
-  const ModifyStartTimeEndTime = () => {
-    setStartDate(getFormattedDate(frequency[period].startDate));
-    setEndDate(getFormattedDate(frequency[period].endDate));
-  };
+  const [period, setPeriod] = useState(frequency.length - 1);
+
+  useEffect(() => {
+    const { startingDate: paramStartDate, endingDate: paramEndDate, dateDetails: paramDate} = route.params || {};
+    if (paramStartDate && paramEndDate && isFromCalendar) {
+      setStartDate(paramStartDate);
+      setEndDate(paramEndDate);
+      setRequestDate(paramDate)
+    } else if (!isFromCalendar) {
+      setStartDate(getFormattedDate(frequency[period].startDate));
+      setEndDate(getFormattedDate(frequency[period].endDate));
+    }
+  }, [route.params, period, frequency]);
 
   const PerformWeekly = () => {
+    setIsFromCalendar(false); 
+    setPeriod(0);
     setFrequency(obj.get_weeks_data());
-    ModifyStartTimeEndTime();
   };
 
   const PerformMonthly = () => {
-    console.log("Hi");
+    setIsFromCalendar(false);
+    setPeriod(0);
     setFrequency(obj.get_months_data());
-    console.log(frequency[period]);
-    ModifyStartTimeEndTime();
   };
 
   const PerformYearly = () => {
+    setIsFromCalendar(false); 
+    setPeriod(0);
     setFrequency(obj.get_years_data());
-    ModifyStartTimeEndTime();
   };
 
-  const [period, setPeriod] = useState(frequency.length - 1);
-
   const moveLeft = () => {
-    setPeriod(period - 1 < 0 ? 0 : period - 1);
-    ModifyStartTimeEndTime();
+    setPeriod(period - 1 < 0 ? frequency.length - 1 : period - 1);
   };
 
   const moveRight = () => {
-    setPeriod(period + 1 > frequency.length - 1 ? frequency.length - 1 : period + 1);
-    ModifyStartTimeEndTime();
+    setPeriod(period + 1 > frequency.length - 1 ? 0 : period + 1);
   };
 
   const transformData = (transactions) => {
@@ -91,12 +97,45 @@ const TransactionList = (props) => {
   };
 
   const getColor = (category) => {
-    return category === 'Income' ? 'blue' : 'red';
+    return category === 'Income' ? 'green' : 'red';
   };
 
   const handleCalenderPress = () => {
-    console.log('pressed calender')
-    navigation.navigate('Calender')
+    console.log('pressed calendar');
+    setIsFromCalendar(true);
+    navigation.navigate('Calender');
+  };
+
+  const DateRender = () => {
+    if(!isFromCalendar){
+      return(
+        <View style={styles.horizontalSlider}>
+          <View style={styles.contentItem}>
+            <Text style={[{fontSize:20}]}>{frequency[period].range}</Text>
+          </View>
+          <TouchableOpacity style={styles.arrowLeft} onPress={moveLeft}>
+            <AntDesign name="leftcircleo" size={24} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.arrowRight} onPress={moveRight}>
+            <AntDesign name="rightcircleo" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
+      )
+    }else{
+      if(transactionData.length){
+        return(
+          <View style={[{alignSelf:'center'},{marginTop:10},{marginBottom:10}]}>
+          <Text style={[{fontSize:20},{fontWeight:'500'}]}>{`Transactions on required date`}</Text>
+          </View>
+        )
+      }else{
+        return(
+          <View style={[{alignSelf:'center'},{marginTop:10},{marginBottom:10}]}>
+          <Text style={[{fontSize:20},{fontWeight:'500'}]}> {`${requestDate}`}</Text>
+          </View>
+        )
+      }
+    }
   }
 
   const renderItem = ({ item }) => (
@@ -119,7 +158,7 @@ const TransactionList = (props) => {
     <View style={styles.container}>
       <View>
         <TouchableOpacity onPress={handleCalenderPress}>
-          <AntDesign style={styles.calender} name="calendar" size={30} color="rebeccapurple"/>
+          <AntDesign style={styles.calender} name="calendar" size={30} color="rebeccapurple" />
         </TouchableOpacity>
       </View>
       <View style={styles.buttons}>
@@ -133,24 +172,18 @@ const TransactionList = (props) => {
           <Text style={styles.optionButtonText}>Yearly</Text>
         </TouchableOpacity>
       </View>
-
-      <View style={styles.horizontalSlider}>
-        <View style={styles.contentItem}>
-          <Text>{frequency[period].range}</Text>
+      <DateRender />
+      {transactionData.length===0 ? (
+        <View style={styles.noTransactionsWrap}>
+        <Text style={[{fontSize:30},{color:'darkred'}]}>No Transactions</Text>
         </View>
-        <TouchableOpacity style={styles.arrowLeft} onPress={moveLeft}>
-          <AntDesign name="leftcircleo" size={24} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.arrowRight} onPress={moveRight}>
-          <AntDesign name="rightcircleo" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-      <SectionList
+      ) :
+        (<SectionList
         sections={transactionData}
         keyExtractor={(item, index) => item + index}
         renderItem={renderItem}
         renderSectionHeader={renderSectionHeader}
-      />
+      />)}
     </View>
   );
 };
@@ -247,6 +280,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  noTransactionsWrap:{
+    justifyContent: 'center', 
+    alignItems: 'center' , 
+    marginTop: 100
+  }
 });
 
 export default TransactionList;

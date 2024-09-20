@@ -1,26 +1,17 @@
-import { StatusBar } from 'expo-status-bar'
 import React, { useState, useEffect,useContext } from 'react'
-import {
-  StyleSheet,
-  FlatList,
-  ScrollView,
-  TouchableOpacity,
-  Button,
-  Text,
-  View
-} from 'react-native'
+import { StyleSheet,FlatList,TouchableOpacity,Text,View,SafeAreaView} from 'react-native'
 import PieChart from 'react-native-pie-chart'
 import { AntDesign } from '@expo/vector-icons'
 import DateDisplay from '../util/DateDisplay'
+import PieList from '../components/PieList'
 import { getTransactionAmountByCategory } from '../util/Api'
 import { getFormattedDate } from '../util/DateConversion'
-import randomColor from 'randomcolor'
 import UserContext from '../util/User'
-
+import PieColors from '../util/PieColors'
 const PieChartStat = () => {
   const widthAndHeight = 250
   const {user} = useContext(UserContext)
-  const [sliceColor, setSliceColor] = useState([randomColor()])
+  const [sliceColor, setSliceColor] = useState(['#D3D3D3'])
   const obj = new DateDisplay()
   const [frequency, setFrequency] = useState(obj.get_weeks_data())
   const [series, setSeries] = useState([100])
@@ -46,10 +37,9 @@ const PieChartStat = () => {
       }
     }
     fetchData()
-  }, [startDate, endDate, transactionType])
+  }, [startDate, endDate])
 
   const [data, setData] = useState([])
-
   const [period, setPeriod] = useState(frequency.length - 1);
 
   useEffect(() => {
@@ -88,7 +78,7 @@ const PieChartStat = () => {
       let sliceColor = []
       let data = []
       for (let i = 0; i < categories.length; i++) {
-        sliceColor.push(randomColor());
+        sliceColor.push(PieColors[categories[i]].color);
         const obj = {
           category: categories[i],
           value: series[i],
@@ -106,24 +96,20 @@ const PieChartStat = () => {
     }
   }, [pieChartData])
 
-  const renderItem = ({ item }) => (
-    <View
-      style={{
-        padding: 20,
-        justifyContent: 'space-around',
-        backgroundColor: item.color
-      }}
-    >
-      <View style={styles.tableData}>
-        <Text>{item.category} </Text>
-        <Text>Rs.{item.value}</Text>
-        <Text>{item.percentage} % </Text>
-      </View>
-    </View>
-  )
+
+  const renderItem = ({item}) => {
+    return(
+      <PieList
+      color={item.color}
+      category={item.category}
+      value={item.value}
+      percentage={item.percentage}
+      />
+    )
+  }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.buttons}>
         <TouchableOpacity style={styles.optionButton} onPress={PerformWeekly}>
           <Text style={styles.optionButtonText}>Weekly</Text>
@@ -156,18 +142,27 @@ const PieChartStat = () => {
       />
       <Text style={styles.title}>Expense Chart</Text>
       <View style={styles.list}>
-        <FlatList data={data} renderItem={renderItem} />
+      {data.length === 0 ? (
+          <Text style={[{fontSize:30},{color:'darkred'}]}>No expenses</Text>
+      ) : (
+        <FlatList 
+          data={data}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 200 }}
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+        />
+      )}
       </View>
-    </View>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    // justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'lavender'
+    backgroundColor: 'lavender',
   },
   title: {
     fontSize: 24,
@@ -177,11 +172,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: 'black'
+    backgroundColor: 'lavender',
+    padding:10
   },
   buttons: {
     flexDirection: 'row',
-    justifyContent: 'space-around'
+    justifyContent: 'space-around',
+    marginTop:10
   },
   optionButton: {
     flex: 1,
@@ -194,11 +191,7 @@ const styles = StyleSheet.create({
   },
   optionButtonText: {
     color: '#333',
-    fontWeight: 'bold'
-  },
-  tableData: {
-    flexDirection: 'row',
-    justifyContent: 'space-around'
+    fontWeight: 'bold' 
   },
   option: {
     paddingHorizontal: 20,
@@ -231,7 +224,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     padding: 10
-  }
+  },
 })
 
 export default PieChartStat

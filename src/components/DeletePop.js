@@ -1,49 +1,64 @@
 import React from "react";
-import { Modal, View, Text, Button, StyleSheet } from "react-native";
-import axios from 'axios';
+import { Modal, View, Text, Button, StyleSheet,Alert } from "react-native";
+import { deleteUser } from "../util/Api";
 
 const DeletePop = ({ visible, onClose, userId, onDelete }) => {
   const handleDelete = async () => {
-    try {
-      await axios.delete(`http://192.168.29.230:3000/api/user/delete?userId=1`, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      onDelete(); // Notify parent about successful deletion
-    } catch (err) {
-      console.error('Failed to delete user', err);
-    }
+    deleteUser(userId).then((data)=>{})
+    Alert.alert('Success', 'Account Deleted')
+    onClose();
+    onDelete();
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={styles.container}>
-        <Text style={styles.header}>Confirm Deletion</Text>
-        <Text style={styles.message}>Are you sure you want to delete this user?</Text>
-        <Button title="Delete" onPress={handleDelete} color="red" />
-        <Button title="Cancel" onPress={onClose} />
+    <Modal 
+      visible={visible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Confirm Deletion</Text>
+          <Text style={styles.modalMessage}>Are you sure you want to delete this account?</Text>
+
+          <View style={styles.modalButtons}>
+            <Button title="Delete" onPress={handleDelete} color="#e74c3c" />
+            <Button title="Cancel" onPress={onClose} color="#3498db" />
+          </View>
+        </View>
       </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  modalContainer: {
     flex: 1,
-    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
     backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: 10,
+    padding: 20,
   },
-  header: {
-    fontSize: 20,
+  modalTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 15,
+    textAlign: 'center',
   },
-  message: {
+  modalMessage: {
     fontSize: 16,
     marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });
 

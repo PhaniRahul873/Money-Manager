@@ -7,7 +7,8 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Keyboard,
-  Button
+  Button,
+  Alert
 } from 'react-native'
 import { MaterialCommunityIcons,FontAwesome,Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,16 +16,28 @@ import { deleteExpense } from "../util/Api";
 
 
 const ExpenseList = (props) => {
-    const {icon,description,color,amount,category,user,timeStamp} = props
+    const {icon,description,color,amount,category,user,timeStamp,setChange,balance} = props
     const [listColor,setColor] = useState('ghostwhite')
     const [modalVisible,setModalVisible] = useState(false)
 
     const handleDelete = () => {
         const expense = {
             "user":user,
-            "timeStamp":timeStamp
+            "timeStamp":timeStamp,
+            "amount":amount,
+            "category":category
         }
-        deleteExpense(expense)
+        if(category==="Income"){
+            if(amount>balance){
+                Alert.alert("Cannot delete this Income")
+            }else{
+                deleteExpense(expense).then((data) => {setChange(data.currentBalance)})
+                Alert.alert("Deleted Income") 
+            }
+        }else{
+            deleteExpense(expense).then((data) => {setChange(data.currentBalance)})
+            Alert.alert("Deleted Expense")
+        }
         setModalVisible(false)
     }
 

@@ -1,0 +1,40 @@
+const PieColors = {
+    Entertainment:{
+        text:'white',
+        color:'blueviolet'
+    },
+    Food:{
+        text:'white',
+        color:'cadetblue'
+    },
+    Shopping:{
+        text:'white',
+        color:'cornflowerblue'
+    },
+    Travel:{
+        text:'white',
+        color:'seagreen'
+    },
+    Health:{
+        text:'black',
+        color:'plum'
+    },
+    Sports:{
+        text:'white',
+        color:'green'
+    },
+    Bills:{
+        text:'black',
+        color:'paleturquoise'
+    },
+    Electronics:{
+        text:'white',
+        color:'darkblue'
+    },
+    Others:{
+        text:'black',
+        color:'tan'
+    }
+}
+
+export default PieColors

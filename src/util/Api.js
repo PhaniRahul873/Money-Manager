@@ -1,16 +1,13 @@
 const ipAddress = {
   'gautham':'192.168.29.171',
-  'koushik':'192.168.1.37'
+  'koushik':'192.168.1.34'
 }
-const url = `http://${ipAddress.gautham}:3000`
+const url = `http://${ipAddress.koushik}:3000`
 
 //console.log(url)
-const getTransactionsList = async (
-  startTime,
-  endTime
-) => {
+const getTransactionsList = async (user,startTime,endTime) => {
   return fetch(
-    `${url}/api/transactions?user=1&startTime=${startTime}&endTime=${endTime}`
+    `${url}/api/transactions?user=${user}&startTime=${startTime}&endTime=${endTime}`
   )
     .then(async (response) => {
       if (!response.ok) {
@@ -108,7 +105,7 @@ const getUserDetails = (user) => {
 };
 
 const checkUserDetails = (user, password) => {
-  console.log("I am here");
+  // console.log("I am here");
   return fetch(`${url}/api/user/check?userInput=${user}&passwordHash=${password}`)
     .then((response) => {
       if (!response.ok) {
@@ -215,7 +212,7 @@ const createUser = (newUser) => {
     });
 };
 
-const deleteUser = () => {
+const deleteUser = (user) => {
   return fetch(`${url}/api/user/delete?userId=${user}`,{
     method: 'DELETE',
   })
@@ -249,7 +246,7 @@ const deleteExpense = (expense) => {
     })
     .then((data) => {
       console.log('message', data);
-      return data
+      return data.Attributes;
     })
     .catch((error) => {
       console.error('error loading data', error);
