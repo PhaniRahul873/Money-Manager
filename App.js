@@ -13,7 +13,7 @@ const App = () => {
   return (
     <UserProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Tabs">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
             name="Signup"
             component={Signup}
