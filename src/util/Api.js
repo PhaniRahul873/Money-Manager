@@ -1,8 +1,4 @@
-const ipAddress = {
-  'gautham':'192.168.29.171',
-  'koushik':'192.168.1.34'
-}
-const url = `http://${ipAddress.koushik}:3000`
+const url = 'https://moneymanager-backend-ajpx.onrender.com'
 
 //console.log(url)
 const getTransactionsList = async (user,startTime,endTime) => {
